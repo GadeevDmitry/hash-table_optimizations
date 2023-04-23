@@ -1,16 +1,11 @@
 #ifndef HASH_TABLE_H
 #define HASH_TABLE_H
 
-#include "../lib/logs/log.h"
-#include "../lib/list/list.h"
+#include "type.h"
 
 //================================================================================================================================
 // STRUCT
 //================================================================================================================================
-
-typedef unsigned long long hash_val;
-typedef const char        *hash_key;
-typedef       char        *hash_t  ;
 
 struct hash_table
 {

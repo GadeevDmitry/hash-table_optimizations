@@ -7,6 +7,9 @@
 #define LOG_NTRACE
 #define LOG_NLEAK
 
+#include "../lib/logs/log.h"
+#include "../lib/list/list.h"
+
 #include "hash_table.h"
 
 #define $h_data (h_tab->data)
@@ -69,7 +72,7 @@ void hash_table_dtor(hash_table *const h_tab)
 
     size_t h_size = $h_size;
     list  *h_data = $h_data;
-    for (int i = 0; i < h_size; ++i) list_dtor(h_data + i);
+    for (size_t i = 0; i < h_size; ++i) list_dtor(h_data + i);
 
     log_free(h_data);
 }
@@ -89,6 +92,7 @@ void hash_table_free(hash_table *const h_tab)
 bool hash_table_push(hash_table *const h_tab, hash_key elem)
 {
     log_verify(h_tab != nullptr, false);
+    log_verify(elem  != nullptr, false);
 
     hash_val index = ((*$h_culc)(elem)) % $h_size;
 
@@ -100,6 +104,7 @@ bool hash_table_push(hash_table *const h_tab, hash_key elem)
 bool hash_table_find(hash_table *const h_tab, hash_key elem)
 {
     log_verify(h_tab != nullptr, false);
+    log_verify(elem  != nullptr, false);
 
     hash_val index = ((*$h_culc)(elem)) % $h_size;
     bool (*h_cmp)(hash_key fst, hash_key sec) = $h_cmp;
