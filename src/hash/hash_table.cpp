@@ -7,10 +7,12 @@
 #define LOG_NTRACE
 #define LOG_NLEAK
 
-#include "../lib/logs/log.h"
-#include "../lib/list/list.h"
-
+#include "../../lib/logs/log.h"
 #include "hash_table.h"
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+static bool hash_list_find(const hash_table *const h_tab, const size_t index, hash_key elem);
 
 #define $h_data (h_tab->data)
 #define $h_size (h_tab->size)
@@ -94,19 +96,32 @@ bool hash_table_push(hash_table *const h_tab, hash_key elem)
     log_verify(h_tab != nullptr, false);
     log_verify(elem  != nullptr, false);
 
-    hash_val index = ((*$h_culc)(elem)) % $h_size;
+    hash_val index = ($h_culc(elem)) % $h_size;
+
+    if (hash_list_find(h_tab, index, elem)) return true;
 
     return list_push_front($h_data + index, &elem);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-bool hash_table_find(hash_table *const h_tab, hash_key elem)
+bool hash_table_find(const hash_table *const h_tab, hash_key elem)
 {
     log_verify(h_tab != nullptr, false);
     log_verify(elem  != nullptr, false);
 
-    hash_val index = ((*$h_culc)(elem)) % $h_size;
+    hash_val index = ($h_culc(elem)) % $h_size;
+
+    return hash_list_find(h_tab, index, elem);
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+static bool hash_list_find(const hash_table *const h_tab, const size_t index, hash_key elem)
+{
+    log_verify(h_tab != nullptr, false);
+    log_verify(index <  $h_size, false);
+
     bool (*h_cmp)(hash_key fst, hash_key sec) = $h_cmp;
 
     list  *dup_list = $h_data + index;
@@ -114,7 +129,7 @@ bool hash_table_find(hash_table *const h_tab, hash_key elem)
 
     for (size_t i = 0; i < dup_num; ++i)
     {
-        hash_t   dup_key = {};
+        hash_t   dup_key = "";
         list_get(dup_list, i, &dup_key);
 
         if (h_cmp(elem, (hash_key) dup_key)) return true;

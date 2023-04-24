@@ -7,7 +7,7 @@
 #define LOG_NTRACE
 #define LOG_NLEAK
 
-#include "../lib/logs/log.h"
+#include "../../lib/logs/log.h"
 #include "hash.h"
 
 static __always_inline hash_val ror(hash_val val);
