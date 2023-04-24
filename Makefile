@@ -35,7 +35,6 @@ $(LST_O): $(LST_H) $(LST_STAT_H) $(LOG_H) $(ALG_H)
 
 lib: $(LIB_O)
 
-
 clean:
 	rm -f $(LOG_O)
 	rm -f $(ALG_O)
