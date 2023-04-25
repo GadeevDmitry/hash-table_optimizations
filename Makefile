@@ -26,6 +26,7 @@ STK_O   = $(STK).o
 LST_O   = $(LST).o
 
 LIB_O   = $(LOG_O) $(TRC_O) $(ALG_O) $(STK_O) $(LST_O)
+LIB_H   = $(LOG_H)          $(ALG_H) $(STK_H) $(LST_H)
 
 $(TRC_O): $(TRC_H) $(TRC_STAT_H) $(LOG_H)
 $(LOG_O): $(LOG_H) $(LOG_STAT_H) $(TRC_H)
@@ -49,9 +50,41 @@ clean:
 OBJ = obj
 SRC = src
 
-hash_table.o: $(SRC)/hash_table.cpp $(SRC)/hash_table.h $(SRC)/type.h
+HASH_DIR   = $(SRC)/hash
+HASH_H     = $(HASH_TABLE_H) $(HASH_CULC_H) $(HASH_TYPE_H)
+HASH_O     = $(HASH_TABLE_O) $(HASH_CULC_O) $(HASH_TYPE_O)
+
+HASH_TABLE_CPP = $(HASH_DIR)/hash_table.cpp
+HASH_TABLE_H   = $(HASH_DIR)/hash_table.h
+HASH_TABLE_O   = $(OBJ)/hash_table.o
+
+HASH_CULC_CPP  = $(HASH_DIR)/hash.cpp
+HASH_CULC_H    = $(HASH_DIR)/hash.h
+HASH_CULC_O    = $(OBJ)/hash.o
+
+HASH_TYPE_CPP  = $(HASH_DIR)/type.cpp
+HASH_TYPE_H    = $(HASH_DIR)/type.h
+HASH_TYPE_O    = $(OBJ)/type.o
+
+#----------------------------------------------------------------------------------
+
+$(HASH_TABLE_O): $(HASH_TABLE_CPP) $(HASH_H)
 	mkdir -p $(OBJ)
-	g++ -c $(CFLAGS) $< -o $(OBJ)/$@
+	g++ -c $< $(CFLAGS) -o $@
+
+$(HASH_CULC_O): $(HASH_CULC_CPP) $(HASH_CULC_H) $(TYPE_H)
+	mkdir -p $(OBJ)
+	g++ -c $< $(CFLAGS) -o $@
+
+$(HASH_TYPE_O): $(HASH_TYPE_CPP) $(HASH_TYPE_H)
+	mkdir -p $(OBJ)
+	g++ -c $< $(CFLAGS) -o $@
+
+DIV_CPP = $(SRC)/division.cpp
+DIV     = div
+
+$(DIV): $(DIV_CPP) $(HASH_O) $(LIB_O)
+	g++ $< $(HASH_O) $(LIB_O) $(CFLAGS) -o $@
 
 #----------------------------------------------------------------------------------
 
