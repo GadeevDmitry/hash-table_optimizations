@@ -24,7 +24,7 @@ static bool hash_list_find(const hash_table *const h_tab, const size_t index, ha
 //--------------------------------------------------------------------------------------------------------------------------------
 
 bool hash_table_ctor(hash_table *const h_tab, const size_t h_size, hash_val (*h_culc)(hash_key elem),
-                                                                   bool     (*h_cmp )(hash_key fst, hash_key sec))
+                                                                   int      (*h_cmp )(hash_key fst, hash_key sec))
 {
     log_verify(h_tab  != nullptr, false);
     log_verify(h_culc != nullptr, false);
@@ -38,7 +38,7 @@ bool hash_table_ctor(hash_table *const h_tab, const size_t h_size, hash_val (*h_
     }
 
     list *const h_data = $h_data;
-    for (size_t i = 0; i < h_size; ++i) list_ctor(h_data + i, sizeof(hash_key));
+    for (size_t i = 0; i < h_size; ++i) list_ctor(h_data + i, sizeof(hash_key), nullptr, hash_key_dump);
 
     $h_size = h_size;
     $h_culc = h_culc;
@@ -50,7 +50,7 @@ bool hash_table_ctor(hash_table *const h_tab, const size_t h_size, hash_val (*h_
 //--------------------------------------------------------------------------------------------------------------------------------
 
 hash_table *hash_table_new(const size_t h_size, hash_val (*h_culc)(hash_key elem),
-                                                bool     (*h_cmp )(hash_key fst, hash_key sec))
+                                                int      (*h_cmp )(hash_key fst, hash_key sec))
 {
     log_verify(h_culc != nullptr, nullptr);
     log_verify(h_cmp  != nullptr, nullptr);
@@ -122,17 +122,15 @@ static bool hash_list_find(const hash_table *const h_tab, const size_t index, ha
     log_verify(h_tab != nullptr, false);
     log_verify(index <  $h_size, false);
 
-    bool (*h_cmp)(hash_key fst, hash_key sec) = $h_cmp;
+    int (*h_cmp)(hash_key fst, hash_key sec) = $h_cmp;
 
-    list  *dup_list = $h_data + index;
-    size_t dup_num  = dup_list-> size;
+    list_node *dup_fict = $h_data[index].fictional;
+    list_node *dup_node = dup_fict->next;
 
-    for (size_t i = 0; i < dup_num; ++i)
+    while (dup_node != dup_fict)
     {
-        hash_t   dup_key = "";
-        list_get(dup_list, i, &dup_key);
-
-        if (h_cmp(elem, (hash_key) dup_key)) return true;
+        if (h_cmp(*(hash_key *)(dup_node->data), elem) == 0) return true;
+        dup_node = dup_node->next;
     }
 
     return false;

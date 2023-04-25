@@ -17,6 +17,9 @@ static __always_inline hash_val rol(hash_val val);
 // hash
 //--------------------------------------------------------------------------------------------------------------------------------
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 hash_val hash_trivial(hash_key elem)
 {
     log_verify(elem != nullptr, 0);
@@ -24,13 +27,15 @@ hash_val hash_trivial(hash_key elem)
     return 1;
 }
 
+#pragma GCC diagnostic pop
+
 //--------------------------------------------------------------------------------------------------------------------------------
 
 hash_val hash_first_char(hash_key elem)
 {
     log_verify(elem != nullptr, 0);
 
-    return elem[0];
+    return (hash_val) elem[0];
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
@@ -48,10 +53,10 @@ hash_val hash_ror(hash_key elem)
 {
     log_verify(elem != nullptr, 0);
 
-    hash_val result = elem[0];
-    size_t len = strlen(elem);
+    hash_val result = (hash_val) elem[0];
+    size_t len      = strlen(elem);
 
-    for (size_t i = 1; i < len; ++i) { result = ror(result) ^ elem[i]; }
+    for (size_t i = 1; i < len; ++i) { result = ror(result) ^ (hash_val) elem[i]; }
 
     return result;
 }
@@ -62,10 +67,10 @@ hash_val hash_rol(hash_key elem)
 {
     log_verify(elem != nullptr, 0);
 
-    hash_val result = elem[0];
+    hash_val result = (hash_val) elem[0];
     size_t len = strlen(elem);
 
-    for (size_t i = 1; i < len; ++i) { result = rol(result) ^ elem[i]; }
+    for (size_t i = 1; i < len; ++i) { result = rol(result) ^ (hash_val) elem[i]; }
 
     return result;
 }
@@ -81,7 +86,7 @@ hash_val hash_crc32(hash_key elem)
     {
         result = result ^ (hash_val) elem[cnt];
 
-        for (size_t bit = 7; bit >= 0; --bit)
+        for (size_t bit = 7; bit != 0; --bit)
         {
             unsigned mask = -(result & 1);
             result = (result >> 1) ^ (polynom & mask);
@@ -99,12 +104,12 @@ static __always_inline hash_val ror(hash_val val)
 {
     const unsigned shift = (sizeof(hash_val) << 3) - 1;
 
-    return (val >> 1) | ((val & 1U) << shift);
+    return (val >> 1) | ((val & 1UL) << shift);
 }
 
 static __always_inline hash_val rol(hash_val val)
 {
     const unsigned shift = (sizeof(hash_val) << 3) - 1;
 
-    return (val << 1) | ((val & (1U << shift)) >> shift);
+    return (val << 1) | ((val & (1UL << shift)) >> shift);
 }
