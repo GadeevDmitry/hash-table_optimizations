@@ -16,7 +16,7 @@
 // SETTINGS
 //--------------------------------------------------------------------------------------------------------------------------------
 
-const size_t HASH_TABLE_SIZE = 107;
+const size_t HASH_TABLE_SIZE = 1907;
 const char  *HASH_TABLE_TEXT = "data/dictionary.txt";
 const char  *HASH_TABLE_CSV  = "data/division.csv";
 
@@ -26,7 +26,8 @@ const char  *HASH_TABLE_CSV  = "data/division.csv";
 // FUNCTION DECLARATION
 //--------------------------------------------------------------------------------------------------------------------------------
 
-void gen_csv(FILE *const csv_stream, hash_val (*h_culc)(hash_key elem), const char *const h_name);
+void csv_hash (FILE *const csv_stream, hash_val (*h_culc)(hash_key elem), const char *const h_name);
+void csv_index(FILE *const csv_stream);
 
 static void        division_convert(const buffer *const dictionary, hash_val (*h_culc)(hash_key elem), FILE *const csv_stream);
 static hash_table *dictionary_parse(const buffer *const dictionary, hash_val (*h_culc)(hash_key elem));
@@ -39,19 +40,32 @@ int main()
 {
     FILE   *csv_stream = fopen(HASH_TABLE_CSV, "w");
 
-    gen_csv(csv_stream, hash_trivial   , "trivial");
-    gen_csv(csv_stream, hash_first_char, "first char");
-    gen_csv(csv_stream, hash_len       , "length");
-    gen_csv(csv_stream, hash_rol       , "ROL");
-    gen_csv(csv_stream, hash_ror       , "ROR");
-    gen_csv(csv_stream, hash_crc32     , "CRC32");
+    csv_hash(csv_stream, hash_trivial   , "trivial");
+    csv_hash(csv_stream, hash_first_char, "first char");
+    csv_hash(csv_stream, hash_len       , "length");
+    csv_hash(csv_stream, hash_rol       , "ROL");
+    csv_hash(csv_stream, hash_ror       , "ROR");
+    csv_hash(csv_stream, hash_crc32     , "CRC32");
 
-    fclose (csv_stream);
+    csv_index(csv_stream);
+    fclose   (csv_stream);
 }
 
 //================================================================================================================================
 
-void gen_csv(FILE *const csv_stream, hash_val (*h_culc)(hash_key elem), const char *const h_name)
+void csv_index(FILE *const csv_stream)
+{
+    fprintf(csv_stream, "%-20s" CSV_SEP " ", "index");
+
+    for (size_t index = 0; index < HASH_TABLE_SIZE; ++index)
+    {
+        fprintf(csv_stream, "%6lu " CSV_SEP " ", index);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+void csv_hash(FILE *const csv_stream, hash_val (*h_culc)(hash_key elem), const char *const h_name)
 {
     log_verify(csv_stream != nullptr, (void) 0);
     log_verify(h_culc     != nullptr, (void) 0);
