@@ -1,5 +1,6 @@
 *.html
 div
+search
 
 obj/
 TEST/
