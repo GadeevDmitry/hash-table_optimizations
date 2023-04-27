@@ -32,7 +32,8 @@ void hash_table_free(hash_table *const h_tab);
 // query
 //--------------------------------------------------------------------------------------------------------------------------------
 
-bool hash_table_push(      hash_table *const h_tab, hash_key elem);
-bool hash_table_find(const hash_table *const h_tab, hash_key elem);
+bool hash_table_push       (      hash_table *const h_tab, hash_key elem);
+bool hash_table_push_forced(      hash_table *const h_tab, hash_key elem);
+bool hash_table_find       (const hash_table *const h_tab, hash_key elem);
 
 #endif //HASH_TABLE_H

@@ -114,7 +114,7 @@ static hash_table *dictionary_parse(const buffer *const dictionary, hash_val (*h
     hash_key lexis = strtok(dictionary->buff_beg, "\n");
     while (lexis != nullptr)
     {
-        hash_table_push(store, lexis);
+        hash_table_push_forced(store, lexis);
         lexis = strtok(nullptr, "\n");
     }
 

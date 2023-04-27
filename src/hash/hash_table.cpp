@@ -105,6 +105,18 @@ bool hash_table_push(hash_table *const h_tab, hash_key elem)
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
+bool hash_table_push_forced(hash_table *const h_tab, hash_key elem)
+{
+    log_verify(h_tab != nullptr, false);
+    log_verify(elem  != nullptr, false);
+
+    hash_val index = ($h_culc(elem)) % $h_size;
+
+    return list_push_front($h_data + index, &elem);
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
 bool hash_table_find(const hash_table *const h_tab, hash_key elem)
 {
     log_verify(h_tab != nullptr, false);
