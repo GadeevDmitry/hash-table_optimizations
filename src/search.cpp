@@ -25,13 +25,20 @@ const char  *HASH_TABLE_TEXT = "data/dictionary.txt";
 int        (*HASH_TABLE_CMP ) (hash_key fst, hash_key sec) = strcmp;
 hash_val   (*HASH_TABLE_CALC) (hash_key elem)              = hash_crc32;
 
+const int RUN_SEARCH_NUM      = 3000;
+const int MAX_DICTIONARY_SIZE = 60000;
+
 //--------------------------------------------------------------------------------------------------------------------------------
 // FUNCTION DECLARATION
 //--------------------------------------------------------------------------------------------------------------------------------
 
-int         hash_table_search(const hash_table *const store, const buffer *const query);
-hash_table *hash_table_init  (                               const buffer *const dictionary);
-buffer     *dictionary_parse ();
+void run_search();
+
+static double               run_search       (const hash_table *const store, hash_key *lexis_array);
+static __always_inline void hash_table_search(const hash_table *const store, hash_key *lexis_array);
+static hash_table          *hash_table_init  (                               hash_key *lexis_array);
+
+static hash_key *lexis_array_init(buffer *const dictionary);
 
 //================================================================================================================================
 // MAIN
@@ -39,57 +46,68 @@ buffer     *dictionary_parse ();
 
 int main()
 {
-    buffer *dictionary = dictionary_parse();
-    buffer *query      = dictionary_parse();
-
-    hash_table *store = hash_table_init(dictionary);
-
-    time_t search_start = clock();
-    CALLGRIND_ZERO_STATS;
-    int lexicon = hash_table_search(store, query);
-    CALLGRIND_DUMP_STATS;
-    time_t search_finish = clock();
-
-    buffer_free(dictionary);
-    buffer_free(query);
-
-    fprintf(stderr, "lexicon:        %d words\n"
-                    "searching time: %lg ms  \n", lexicon, (search_finish - search_start) * 1000.0 / CLOCKS_PER_SEC);
+    run_search();
 }
 
 //================================================================================================================================
 
-int hash_table_search(const hash_table *const store, const buffer *const query)
+void run_search()
 {
-    log_verify(store != nullptr, -1);
-    log_verify(query != nullptr, -1);
+    buffer *dictionary    = buffer_new (HASH_TABLE_TEXT);
+    hash_key *lexis_array = lexis_array_init(dictionary);
+    hash_table *store     = hash_table_init(lexis_array);
 
-    int result = 0;
-    hash_key lexis = strtok(query->buff_beg, "\n");
-    while (lexis != nullptr)
-    {
-        if (hash_table_find(store, lexis)) result++;
-        lexis = strtok(nullptr, "\n");
-    }
+    fprintf(stderr, "search time: %lf ms\n", run_search(store, lexis_array));
 
-    return result;
+    buffer_free(dictionary);
+    log_free  (lexis_array);
+    hash_table_free (store);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-hash_table *hash_table_init(const buffer *const dictionary)
+static double run_search(const hash_table *const store, hash_key *lexis_array)
 {
+    log_verify(store       != nullptr, (void) 0);
+    log_verify(lexis_array != nullptr, (void) 0);
 
-    log_verify(dictionary != nullptr, nullptr);
+    clock_t search_start = clock();
+    CALLGRIND_ZERO_STATS;
+    for (int i = 0; i < RUN_SEARCH_NUM; ++i)
+    {
+        hash_table_search(store, lexis_array);
+    }
+    CALLGRIND_DUMP_STATS;
+    clock_t search_finish = clock();
+
+    return 1000.0 * (search_finish - search_start) / (CLOCKS_PER_SEC * (double) RUN_SEARCH_NUM);
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+static __always_inline void hash_table_search(const hash_table *const store, hash_key *lexis_array)
+{
+    log_verify(store       != nullptr, (void) 0);
+    log_verify(lexis_array != nullptr, (void) 0);
+
+    for (int i = 0; lexis_array[i] != nullptr; ++i)
+    {
+        hash_table_find(store, lexis_array[i]);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+static hash_table *hash_table_init(hash_key *lexis_array)
+{
+    log_verify(lexis_array != nullptr, nullptr);
 
     hash_table *store = hash_table_new(HASH_TABLE_SIZE, HASH_TABLE_CALC, HASH_TABLE_CMP);
     log_verify(store != nullptr, nullptr);
 
-    hash_key lexis = strtok(dictionary->buff_beg, "\n");
-    while (lexis != nullptr)
+    for (int i = 0; lexis_array[i] != nullptr; ++i)
     {
-        hash_table_push_forced(store, lexis);
-        lexis = strtok(nullptr, "\n");
+        hash_table_push_forced(store, lexis_array[i]);
     }
 
     return store;
@@ -97,10 +115,22 @@ hash_table *hash_table_init(const buffer *const dictionary)
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-buffer *dictionary_parse()
+static hash_key *lexis_array_init(buffer *const dictionary)
 {
-    buffer *dictionary = buffer_new(HASH_TABLE_TEXT);
     log_verify(dictionary != nullptr, nullptr);
 
-    return dictionary;
+    hash_key *lexis_array = (hash_key *) log_calloc(MAX_DICTIONARY_SIZE, sizeof(char *));
+    hash_key  lexis = strtok(dictionary->buff_beg, "\n");
+
+    int array_ind = 0;
+    while (lexis != nullptr)
+    {
+        lexis_array[array_ind] = lexis;
+        lexis = strtok(nullptr, "\n");
+
+        array_ind ++;
+    }
+    lexis_array[array_ind] = nullptr;
+
+    return lexis_array;
 }
