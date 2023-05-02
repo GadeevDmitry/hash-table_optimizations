@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define NDEBUG
-#define NVERIFY
+//#define NDEBUG
+//#define NVERIFY
 #define LOG_NTRACE
-#define LOG_NLEAK
+//#define LOG_NLEAK
 
 #include "../../lib/logs/log.h"
 #include "hash.h"

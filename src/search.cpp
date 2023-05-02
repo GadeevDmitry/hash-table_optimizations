@@ -4,8 +4,11 @@
 #include <math.h>
 #include <time.h>
 
-#define NDEBUG
-#define NVERIFY
+//#define NDEBUG
+//#define NVERIFY
+#define LOG_NTRACE
+//#define LOG_NLEAK
+//#define CALLGRIND_MODE
 
 #include "../lib/algorithm/algorithm.h"
 #include "../lib/logs/log.h"
@@ -14,7 +17,9 @@
 #include "hash/hash.h"
 #include "hash/hash_table.h"
 
+#ifdef CALLGRIND_MODE
 #include <valgrind/callgrind.h>
+#endif
 
 //--------------------------------------------------------------------------------------------------------------------------------
 // SETTINGS
@@ -26,7 +31,7 @@ const char  *HASH_TABLE_TEXT = "data/dictionary.txt";
 int        (*HASH_TABLE_CMP ) (hash_key fst, hash_key sec) = strcmp;
 hash_val   (*HASH_TABLE_CALC) (hash_key elem)              = hash_crc32;
 
-const int RUN_SEARCH_NUM      = 1000;
+const int RUN_SEARCH_NUM      = 3000;
 const int MAX_DICTIONARY_SIZE = 60000;
 
 //--------------------------------------------------------------------------------------------------------------------------------
@@ -73,12 +78,20 @@ static double run_search(const hash_table *const store, hash_key *lexis_array)
     log_verify(lexis_array != nullptr, NAN);
 
     clock_t search_start = clock();
+
+    #ifdef CALLGRIND_MODE
     CALLGRIND_ZERO_STATS;
+    #endif
+
     for (int i = 0; i < RUN_SEARCH_NUM; ++i)
     {
         hash_table_search(store, lexis_array);
     }
+
+    #ifdef CALLGRIND_MODE
     CALLGRIND_DUMP_STATS;
+    #endif
+
     clock_t search_finish = clock();
 
     return 1000.0 * (search_finish - search_start) / (CLOCKS_PER_SEC * (double) RUN_SEARCH_NUM);
