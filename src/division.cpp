@@ -4,6 +4,7 @@
 
 #define NDEBUG
 #define NVERIFY
+#define LOG_NTRACE
 
 #include "../lib/algorithm/algorithm.h"
 #include "../lib/logs/log.h"
@@ -43,6 +44,7 @@ int main()
     csv_hash(csv_stream, hash_trivial   , "trivial");
     csv_hash(csv_stream, hash_first_char, "first char");
     csv_hash(csv_stream, hash_len       , "length");
+    csv_hash(csv_stream, hash_sum_char  , "sum char");
     csv_hash(csv_stream, hash_rol       , "ROL");
     csv_hash(csv_stream, hash_ror       , "ROR");
     csv_hash(csv_stream, hash_crc32     , "CRC32");

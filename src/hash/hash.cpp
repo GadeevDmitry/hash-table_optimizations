@@ -49,6 +49,20 @@ hash_val hash_len(hash_key elem)
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
+hash_val hash_sum_char(hash_key elem)
+{
+    log_verify(elem != nullptr, 0);
+
+    hash_val result = (hash_val) elem[0];
+    size_t len      = strlen(elem);
+
+    for (size_t i = 1; i < len; ++i) { result += (hash_val) elem[i]; }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
 hash_val hash_ror(hash_key elem)
 {
     log_verify(elem != nullptr, 0);
