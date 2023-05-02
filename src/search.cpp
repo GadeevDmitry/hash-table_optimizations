@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <time.h>
 
 #define NDEBUG
@@ -25,7 +26,7 @@ const char  *HASH_TABLE_TEXT = "data/dictionary.txt";
 int        (*HASH_TABLE_CMP ) (hash_key fst, hash_key sec) = strcmp;
 hash_val   (*HASH_TABLE_CALC) (hash_key elem)              = hash_crc32;
 
-const int RUN_SEARCH_NUM      = 3000;
+const int RUN_SEARCH_NUM      = 1000;
 const int MAX_DICTIONARY_SIZE = 60000;
 
 //--------------------------------------------------------------------------------------------------------------------------------
@@ -68,8 +69,8 @@ void run_search()
 
 static double run_search(const hash_table *const store, hash_key *lexis_array)
 {
-    log_verify(store       != nullptr, (void) 0);
-    log_verify(lexis_array != nullptr, (void) 0);
+    log_verify(store       != nullptr, NAN);
+    log_verify(lexis_array != nullptr, NAN);
 
     clock_t search_start = clock();
     CALLGRIND_ZERO_STATS;
