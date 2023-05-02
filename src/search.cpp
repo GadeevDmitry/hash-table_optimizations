@@ -44,6 +44,9 @@ static double               run_search       (const hash_table *const store, has
 static __always_inline void hash_table_search(const hash_table *const store, hash_key *lexis_array);
 static hash_table          *hash_table_init  (                               hash_key *lexis_array);
 
+static hash_key hash_table_rebuild(hash_table *const store, const size_t total_key_size);
+static void     hash_list_rebuild (hash_table *const store, const size_t chain, char **const next_addr_key);
+
 static hash_key *lexis_array_init(buffer *const dictionary);
 
 //================================================================================================================================
@@ -63,9 +66,12 @@ void run_search()
     hash_key *lexis_array = lexis_array_init(dictionary);
     hash_table *store     = hash_table_init(lexis_array);
 
+    hash_key store_key_new = hash_table_rebuild(store, dictionary->buff_size);
+    buffer_free(dictionary);
+
     fprintf(stderr, "search time: %lf ms\n", run_search(store, lexis_array));
 
-    buffer_free(dictionary);
+    log_free  ((void *) store_key_new);
     log_free  (lexis_array);
     hash_table_free (store);
 }
@@ -74,8 +80,8 @@ void run_search()
 
 static double run_search(const hash_table *const store, hash_key *lexis_array)
 {
-    log_verify(store       != nullptr, NAN);
-    log_verify(lexis_array != nullptr, NAN);
+    log_assert(store       != nullptr);
+    log_assert(lexis_array != nullptr);
 
     clock_t search_start = clock();
 
@@ -101,8 +107,8 @@ static double run_search(const hash_table *const store, hash_key *lexis_array)
 
 static __always_inline void hash_table_search(const hash_table *const store, hash_key *lexis_array)
 {
-    log_verify(store       != nullptr, (void) 0);
-    log_verify(lexis_array != nullptr, (void) 0);
+    log_assert(store       != nullptr);
+    log_assert(lexis_array != nullptr);
 
     for (int i = 0; lexis_array[i] != nullptr; ++i)
     {
@@ -114,10 +120,10 @@ static __always_inline void hash_table_search(const hash_table *const store, has
 
 static hash_table *hash_table_init(hash_key *lexis_array)
 {
-    log_verify(lexis_array != nullptr, nullptr);
+    log_assert(lexis_array != nullptr);
 
     hash_table *store = hash_table_new(HASH_TABLE_SIZE, HASH_TABLE_CALC, HASH_TABLE_CMP);
-    log_verify(store != nullptr, nullptr);
+    log_assert(store != nullptr);
 
     for (int i = 0; lexis_array[i] != nullptr; ++i)
     {
@@ -129,9 +135,53 @@ static hash_table *hash_table_init(hash_key *lexis_array)
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
+static hash_key hash_table_rebuild(hash_table *const store, const size_t total_key_size)
+{
+    log_assert(store != nullptr);
+
+    char *key_store_new = (char *) log_calloc(sizeof(char), total_key_size + 1);
+    log_assert(key_store_new != nullptr);
+
+    char *next_key_addr = key_store_new;
+    for (size_t chain = 0; chain < HASH_TABLE_SIZE; ++chain)
+    {
+        hash_list_rebuild(store, chain, &next_key_addr);
+    }
+
+    return key_store_new;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+static void hash_list_rebuild(hash_table *const store, const size_t chain, char **const next_addr_key)
+{
+    log_assert(store != nullptr);
+    log_assert(chain < HASH_TABLE_SIZE);
+
+    log_assert( next_addr_key != nullptr);
+    log_assert(*next_addr_key != nullptr);
+
+    list_node *dup_fict = store->data[chain].fictional;
+    list_node *dup_cur  = dup_fict + dup_fict->next;
+
+    while (dup_cur != dup_fict)
+    {
+        size_t key_len = strlen((const char *) dup_cur->data) + 1; //null-character
+
+        memcpy(*next_addr_key, dup_cur->data, key_len);
+
+        dup_cur->data = next_addr_key;
+        dup_cur = dup_fict + dup_cur->next;
+
+        *next_addr_key += key_len;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
 static hash_key *lexis_array_init(buffer *const dictionary)
 {
-    log_verify(dictionary != nullptr, nullptr);
+    log_assert(dictionary != nullptr);
 
     hash_key *lexis_array = (hash_key *) log_calloc(MAX_DICTIONARY_SIZE, sizeof(char *));
     hash_key  lexis = strtok(dictionary->buff_beg, "\n");
