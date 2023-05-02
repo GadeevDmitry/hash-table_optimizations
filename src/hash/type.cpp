@@ -7,5 +7,5 @@
 void hash_key_dump(const void *const _key)
 {
     log_tab_message("%p\n"
-                    "\"%s\"\n", *(hash_key *) _key, (hash_key) *(hash_key *) _key);
+                    "\"%s\"\n", _key, (hash_key *) _key);
 }
