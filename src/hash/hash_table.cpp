@@ -38,7 +38,7 @@ bool hash_table_ctor(hash_table *const h_tab, const size_t h_size, hash_val (*h_
     }
 
     list *const h_data = $h_data;
-    for (size_t i = 0; i < h_size; ++i) list_ctor(h_data + i, hash_key_dump);
+    for (size_t i = 0; i < h_size; ++i) cache_list_ctor(h_data + i, hash_key_dump);
 
     $h_size = h_size;
     $h_calc = h_calc;
@@ -75,7 +75,7 @@ void hash_table_dtor(hash_table *const h_tab)
     size_t h_size = $h_size;
     list  *h_data = $h_data;
 
-    for (size_t i = 0; i < h_size; ++i) list_dtor(h_data + i);
+    for (size_t i = 0; i < h_size; ++i) cache_list_dtor(h_data + i);
 
     log_free(h_data);
 }
@@ -101,7 +101,7 @@ bool hash_table_push(hash_table *const h_tab, hash_key elem)
 
     if (hash_list_find(h_tab, index, elem)) return true;
 
-    return list_push_front($h_data + index, elem);
+    return cache_list_push_front($h_data + index, elem);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ bool hash_table_push_forced(hash_table *const h_tab, hash_key elem)
 
     hash_val index = ($h_calc(elem)) % $h_size;
 
-    return list_push_front($h_data + index, elem);
+    return cache_list_push_front($h_data + index, elem);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
@@ -138,12 +138,12 @@ static bool hash_list_find(const hash_table *const h_tab, const size_t index, ha
     int (*h_cmp)(hash_key fst, hash_key sec) = $h_cmp;
 
     list_node *dup_fict = $h_data[index].fictional;
-    list_node *dup_node = dup_fict->next;
+    list_node *dup_node = dup_fict + dup_fict->next;
 
     while (dup_node != dup_fict)
     {
         if (h_cmp((hash_key)(dup_node->data), elem) == 0) return true;
-        dup_node = dup_node->next;
+        dup_node = dup_fict + dup_node->next;
     }
 
     return false;

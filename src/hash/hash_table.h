@@ -1,12 +1,15 @@
 #ifndef HASH_TABLE_H
 #define HASH_TABLE_H
 
-#include "../../lib/list/list.h"
+#include "../../lib/cache_friendly_list/cache_list.h"
 #include "type.h"
 
 //================================================================================================================================
 // STRUCT
 //================================================================================================================================
+
+typedef cache_list      list     ;
+typedef cache_list_node list_node;
 
 struct hash_table
 {
