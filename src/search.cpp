@@ -4,10 +4,10 @@
 #include <math.h>
 #include <time.h>
 
-//#define NDEBUG
-//#define NVERIFY
+#define NDEBUG
+#define NVERIFY
 #define LOG_NTRACE
-//#define LOG_NLEAK
+#define LOG_NLEAK
 //#define CALLGRIND_MODE
 
 #include "../lib/algorithm/algorithm.h"
