@@ -92,11 +92,9 @@ static void division_convert(const buffer *const dictionary, hash_val (*h_culc)(
     log_verify(store != nullptr, (void) 0);
 
     size_t h_size = store->size;
-    list  *h_data = store->data;
-
     for (size_t index = 0; index < h_size; ++index)
     {
-        fprintf(csv_stream, "%6lu " CSV_SEP " ", h_data[index].size);
+        fprintf(csv_stream, "%6lu " CSV_SEP " ", hash_table_chain_size(store, index));
     }
     putc('\n', csv_stream);
 
