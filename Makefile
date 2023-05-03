@@ -16,48 +16,48 @@ FLAGS    = $(FLAGS_NDEBUG) $(OPTIMIZE)
 # LIB
 #----------------------------------------------------------------------------------
 
-TRC	      = lib/logs/trace/trace
-LOG       = lib/logs/log
-ALG       = lib/algorithm/algorithm
-STK       = lib/stack/stack
-LST       = lib/list/list
-CACHE_LST = lib/cache_friendly_list/cache_list
+TRC	  = lib/logs/trace/trace
+LOG   = lib/logs/log
+ALG   = lib/algorithm/algorithm
+STK   = lib/stack/stack
+LST   = lib/list/list
+CHAIN = src/chain/chain
 
-TRC_STAT_H       = $(TRC)_static.h
-LOG_STAT_H       = $(LOG)_static.h
-ALG_STAT_H       = $(ALG)_static.h
-STK_STAT_H       = $(STK)_static.h
-LST_STAT_H       = $(LST)_static.h
-CACHE_LST_STAT_H = $(CACHE_LST)_static.h
+TRC_STAT_H   = $(TRC)_static.h
+LOG_STAT_H   = $(LOG)_static.h
+ALG_STAT_H   = $(ALG)_static.h
+STK_STAT_H   = $(STK)_static.h
+LST_STAT_H   = $(LST)_static.h
+CHAIN_STAT_H = $(CHAIN)_static.h
 
-TRC_H       = $(TRC).h       $(TRC)_settings.h
-LOG_H       = $(LOG).h       $(LOG)_settings.h $(LOG)_def.h $(LOG)_undef.h
-ALG_H       = $(ALG).h       $(ALG)_settings.h
-STK_H       = $(STK).h       $(STK)_settings.h
-LST_H       = $(LST).h       $(LST)_settings.h
-CACHE_LST_H = $(CACHE_LST).h $(CACHE_LST)_settings.h
+TRC_H   = $(TRC).h    $(TRC)_settings.h
+LOG_H   = $(LOG).h    $(LOG)_settings.h $(LOG)_def.h $(LOG)_undef.h
+ALG_H   = $(ALG).h    $(ALG)_settings.h
+STK_H   = $(STK).h    $(STK)_settings.h
+LST_H   = $(LST).h    $(LST)_settings.h
+CHAIN_H = $(CHAIN).h  $(CHAIN)_settings.h
 
-TRC_O       = $(TRC).o
-LOG_O       = $(LOG).o
-ALG_O       = $(ALG).o
-STK_O       = $(STK).o
-LST_O       = $(LST).o
-CACHE_LST_O = $(CACHE_LST).o
+TRC_O   = $(TRC).o
+LOG_O   = $(LOG).o
+ALG_O   = $(ALG).o
+STK_O   = $(STK).o
+LST_O   = $(LST).o
+CHAIN_O = $(CHAIN).o
 
-$(TRC_O):       $(TRC_H)       $(TRC_STAT_H)       $(LOG_H)
-$(LOG_O):       $(LOG_H)       $(LOG_STAT_H)       $(TRC_H)
-$(ALG_O):       $(ALG_H)       $(ALG_STAT_H)       $(LOG_H)
-$(STK_O):       $(STK_H)       $(STK_STAT_H)       $(LOG_H) $(ALG_H)
-$(LST_O):       $(LST_H)       $(LST_STAT_H)       $(LOG_H) $(ALG_H)
-$(CACHE_LST_O): $(CACHE_LST_H) $(CACHE_LST_STAT_H) $(LOG_H) $(ALG_H)
+$(TRC_O):   $(TRC_H)   $(TRC_STAT_H)   $(LOG_H)
+$(LOG_O):   $(LOG_H)   $(LOG_STAT_H)   $(TRC_H)
+$(ALG_O):   $(ALG_H)   $(ALG_STAT_H)   $(LOG_H)
+$(STK_O):   $(STK_H)   $(STK_STAT_H)   $(LOG_H) $(ALG_H)
+$(LST_O):   $(LST_H)   $(LST_STAT_H)   $(LOG_H) $(ALG_H)
+$(CHAIN_O): $(CHAIN_H) $(CHAIN_STAT_H) $(LOG_H) $(ALG_H)
 
-LIB_O   = $(LOG_O) $(TRC_O) $(ALG_O) $(STK_O) $(LST_O) $(CACHE_LST_O)
-LIB_H   = $(LOG_H)          $(ALG_H) $(STK_H) $(LST_H) $(CACHE_LST_H)
+LIB_O = $(LOG_O) $(TRC_O) $(ALG_O) $(STK_O) $(LST_O) $(CHAIN_O)
+LIB_H = $(LOG_H)          $(ALG_H) $(STK_H) $(LST_H) $(CHAIN_H)
 
 lib: $(LIB_O)
 
 clean:
-	rm -f $(CACHE_LST_O)
+	rm -f $(CHAIN_O)
 	rm -f $(LOG_O)
 	rm -f $(ALG_O)
 	rm -f $(STK_O)
@@ -91,8 +91,6 @@ HASH_TYPE_CPP  = $(HASH_DIR)/type.cpp
 HASH_TYPE_H    = $(HASH_DIR)/type.h
 HASH_TYPE_O    = $(OBJ)/type.o
 
-HASH_TIME_CPP  = $(HASH_DIR)/hash_time.cpp
-HASH_TIME      = hash_time
 
 #----------------------------------------------------------------------------------
 
@@ -107,6 +105,13 @@ $(HASH_CALC_O): $(HASH_CALC_CPP) $(HASH_CALC_H) $(TYPE_H)
 $(HASH_TYPE_O): $(HASH_TYPE_CPP) $(HASH_TYPE_H)
 	mkdir -p $(OBJ)
 	g++ -c $< $(FLAGS) -o $@
+
+#----------------------------------------------------------------------------------
+# EXE
+#----------------------------------------------------------------------------------
+
+HASH_TIME_CPP  = $(HASH_DIR)/hash_time.cpp
+HASH_TIME      = hash_time
 
 $(HASH_TIME): $(HASH_TIME_CPP) $(HASH_CALC_O) $(LIB_O)
 	g++ $< $(HASH_CALC_O) $(LIB_O) $(FLAGS) -o $@
@@ -123,7 +128,6 @@ SEARCH     = search
 $(SEARCH): $(SEARCH_CPP) $(HASH_O) $(LIB_O)
 	g++ $< $(HASH_O) $(LIB_O) $(FLAGS) -o $@
 
-#----------------------------------------------------------------------------------
 
 %.o: %.cpp
 	g++ -c $(FLAGS) $< -o $@

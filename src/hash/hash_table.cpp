@@ -30,15 +30,15 @@ bool hash_table_ctor(hash_table *const h_tab, const size_t h_size, hash_val (*h_
     log_verify(h_calc != nullptr, false);
     log_verify(h_cmp  != nullptr, false);
 
-    $h_data = (list *) log_calloc(h_size, sizeof(list));
+    $h_data = (chain *) log_calloc(h_size, sizeof(chain));
     if ($h_data == nullptr)
     {
         log_error("Can't allocate memory for hash_table.data\n");
         return false;
     }
 
-    list *const h_data = $h_data;
-    for (size_t i = 0; i < h_size; ++i) cache_list_ctor(h_data + i, hash_key_dump);
+    chain *const h_data = $h_data;
+    for (size_t i = 0; i < h_size; ++i) chain_ctor(h_data + i, hash_key_dump);
 
     $h_size = h_size;
     $h_calc = h_calc;
@@ -73,9 +73,9 @@ void hash_table_dtor(hash_table *const h_tab)
     if (h_tab == nullptr) return;
 
     size_t h_size = $h_size;
-    list  *h_data = $h_data;
+    chain *h_data = $h_data;
 
-    for (size_t i = 0; i < h_size; ++i) cache_list_dtor(h_data + i);
+    for (size_t i = 0; i < h_size; ++i) chain_dtor(h_data + i);
 
     log_free(h_data);
 }
@@ -92,59 +92,89 @@ void hash_table_free(hash_table *const h_tab)
 // query
 //--------------------------------------------------------------------------------------------------------------------------------
 
-bool hash_table_push(hash_table *const h_tab, hash_key elem)
+bool hash_table_push(hash_table *const h_tab, hash_key key)
 {
     log_verify(h_tab != nullptr, false);
-    log_verify(elem  != nullptr, false);
+    log_verify(key   != nullptr, false);
 
-    hash_val index = ($h_calc(elem)) % $h_size;
+    hash_val index = ($h_calc(key)) % $h_size;
 
-    if (hash_list_find(h_tab, index, elem)) return true;
+    if (hash_list_find(h_tab, index, key)) return true;
 
-    return cache_list_push_front($h_data + index, elem);
+    return chain_push_front($h_data + index, key);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-bool hash_table_push_forced(hash_table *const h_tab, hash_key elem)
+bool hash_table_push_forced(hash_table *const h_tab, hash_key key)
 {
     log_verify(h_tab != nullptr, false);
-    log_verify(elem  != nullptr, false);
+    log_verify(key   != nullptr, false);
 
-    hash_val index = ($h_calc(elem)) % $h_size;
+    hash_val index = ($h_calc(key)) % $h_size;
 
-    return cache_list_push_front($h_data + index, elem);
+    return chain_push_front($h_data + index, key);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-bool hash_table_find(const hash_table *const h_tab, hash_key elem)
+bool hash_table_find(const hash_table *const h_tab, hash_key key)
 {
     log_verify(h_tab != nullptr, false);
-    log_verify(elem  != nullptr, false);
+    log_verify(key   != nullptr, false);
 
-    hash_val index = ($h_calc(elem)) % $h_size;
+    hash_val index = ($h_calc(key)) % $h_size;
 
-    return hash_list_find(h_tab, index, elem);
+    return hash_list_find(h_tab, index, key);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-static bool hash_list_find(const hash_table *const h_tab, const size_t index, hash_key elem)
+size_t hash_table_chain_size(const hash_table *const h_tab, size_t ind)
+{
+    log_verify(h_tab != nullptr, 0);
+
+    return chain_get_size($h_data + ind);
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+static bool hash_list_find(const hash_table *const h_tab, const size_t index, hash_key key)
 {
     log_verify(h_tab != nullptr, false);
     log_verify(index <  $h_size, false);
+    log_verify(key   != nullptr, false);
 
     int (*h_cmp)(hash_key fst, hash_key sec) = $h_cmp;
 
-    list_node *dup_fict = $h_data[index].fictional;
-    list_node *dup_node = dup_fict + dup_fict->next;
+    chain_node *dup_fict = $h_data[index].fictional;
+    chain_node *dup_node = dup_fict + dup_fict->next;
 
     while (dup_node != dup_fict)
     {
-        if (h_cmp((hash_key)(dup_node->data), elem) == 0) return true;
+        if (h_cmp((hash_key)(dup_node->keys     ), key) == 0) return true;
+        if (h_cmp((hash_key)(dup_node->keys + 32), key) == 0) return true;
+
         dup_node = dup_fict + dup_node->next;
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+void hash_table_dump(const hash_table *const h_tab)
+{
+    log_verify(h_tab != nullptr, false);
+
+    log_service_message("====================", "\n");
+
+    for (size_t i = 0; i < $h_size; ++i)
+    {
+        log_tab_service_message("chain #%lu:", "\n", i);
+        chain_dump($h_data + i);
+    }
+
+    log_service_message("====================", "\n");
+
 }

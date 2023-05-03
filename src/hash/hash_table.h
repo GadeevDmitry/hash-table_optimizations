@@ -1,19 +1,16 @@
 #ifndef HASH_TABLE_H
 #define HASH_TABLE_H
 
-#include "../../lib/cache_friendly_list/cache_list.h"
+#include "../chain/chain.h"
 #include "type.h"
 
 //================================================================================================================================
 // STRUCT
 //================================================================================================================================
 
-typedef cache_list      list     ;
-typedef cache_list_node list_node;
-
 struct hash_table
 {
-    list   *data;
+    chain  *data;
     size_t  size;
 
     hash_val (*calc)(hash_key elem);
@@ -35,8 +32,10 @@ void hash_table_free(hash_table *const h_tab);
 // query
 //--------------------------------------------------------------------------------------------------------------------------------
 
-bool hash_table_push       (      hash_table *const h_tab, hash_key elem);
-bool hash_table_push_forced(      hash_table *const h_tab, hash_key elem);
-bool hash_table_find       (const hash_table *const h_tab, hash_key elem);
+bool hash_table_push        (      hash_table *const h_tab, hash_key elem);
+bool hash_table_push_forced (      hash_table *const h_tab, hash_key elem);
+bool hash_table_find        (const hash_table *const h_tab, hash_key elem);
+void hash_table_dump        (const hash_table *const h_tab);
+size_t hash_table_chain_size(const hash_table *const h_tab, size_t    ind);
 
 #endif //HASH_TABLE_H
