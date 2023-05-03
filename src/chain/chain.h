@@ -11,7 +11,7 @@
 
 struct chain_node
 {
-    char keys[64] __attribute__ ((aligned (8)));
+    char keys[64];
 
     size_t prev;
     size_t next;
