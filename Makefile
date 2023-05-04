@@ -66,14 +66,15 @@ clean:
 
 .PHONY: clean
 
+OBJ = obj
+SRC = src
+
 #----------------------------------------------------------------------------------
 # HASH_TABLE
 #----------------------------------------------------------------------------------
 
 all: $(HASH_TABLE_O) $(HASH_CALC_O) $(HASH_TYPE_O) $(DIV) $(SEARCH)
 
-OBJ = obj
-SRC = src
 
 HASH_DIR   = $(SRC)/hash
 HASH_H     = $(HASH_TABLE_H) $(HASH_CALC_H) $(HASH_TYPE_H)
@@ -107,6 +108,19 @@ $(HASH_TYPE_O): $(HASH_TYPE_CPP) $(HASH_TYPE_H)
 	g++ -c $< $(FLAGS) -o $@
 
 #----------------------------------------------------------------------------------
+# ASM
+#----------------------------------------------------------------------------------
+
+ASM_DIR = $(SRC)/assembly
+
+CRC32_S   = $(ASM_DIR)/crc32.s
+CRC32_LST = $(ASM_DIR)/crc32.lst
+CRC32_O   = $(OBJ)/crc32.o
+
+$(CRC32_O): $(CRC32_S)
+	nasm -f elf64 $< -l $(CRC32_LST) -o $(CRC32_O)
+
+#----------------------------------------------------------------------------------
 # EXE
 #----------------------------------------------------------------------------------
 
@@ -114,19 +128,19 @@ HASH_TIME_CPP  = $(HASH_DIR)/hash_time.cpp
 HASH_TIME      = hash_time
 
 $(HASH_TIME): $(HASH_TIME_CPP) $(HASH_CALC_O) $(LIB_O)
-	g++ $< $(HASH_CALC_O) $(LIB_O) $(FLAGS) -o $@
+	g++ $^ $(FLAGS) -o $@
 
 DIV_CPP = $(SRC)/division.cpp
 DIV     = div
 
-$(DIV): $(DIV_CPP) $(HASH_O) $(LIB_O)
-	g++ $< $(HASH_O) $(LIB_O) $(FLAGS) -o $@
+$(DIV): $(DIV_CPP) $(HASH_O) $(CRC32_O) $(LIB_O)
+	g++ $^ $(FLAGS) -o $@
 
 SEARCH_CPP = $(SRC)/search.cpp
 SEARCH     = search
 
-$(SEARCH): $(SEARCH_CPP) $(HASH_O) $(LIB_O)
-	g++ $< $(HASH_O) $(LIB_O) $(FLAGS) -o $@
+$(SEARCH): $(SEARCH_CPP) $(CRC32_O) $(HASH_O) $(LIB_O)
+	g++ $^ $(FLAGS) -o $@
 
 
 %.o: %.cpp
