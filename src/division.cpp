@@ -17,6 +17,8 @@
 // SETTINGS
 //--------------------------------------------------------------------------------------------------------------------------------
 
+extern "C" hash_val crc32_asm(hash_key elem);
+
 const size_t HASH_TABLE_SIZE = 1907;
 const char  *HASH_TABLE_TEXT = "data/dictionary.txt";
 const char  *HASH_TABLE_CSV  = "data/division.csv";
@@ -47,7 +49,7 @@ int main()
     csv_hash(csv_stream, hash_sum_char  , "sum char");
     csv_hash(csv_stream, hash_rol       , "ROL");
     csv_hash(csv_stream, hash_ror       , "ROR");
-    csv_hash(csv_stream, hash_crc32     , "CRC32");
+    csv_hash(csv_stream, crc32_asm      , "CRC32_asm");
 
     csv_index(csv_stream);
     fclose   (csv_stream);
