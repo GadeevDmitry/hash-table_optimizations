@@ -68,7 +68,8 @@ void run_search()
     buffer_free(dictionary);
     hash_table_free (store);
 
-    log_free(lexis_array);
+    log_free((void *) *lexis_array);
+    log_free(          lexis_array);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
@@ -135,15 +136,19 @@ static hash_key *lexis_array_init(buffer *const dictionary)
     log_verify(dictionary != nullptr, nullptr);
 
     hash_key *lexis_array = (hash_key *) log_calloc(MAX_DICTIONARY_SIZE, sizeof(char *));
+    char     *lexis_store = (char     *) log_calloc(MAX_DICTIONARY_SIZE, 32);
     hash_key  lexis = strtok(dictionary->buff_beg, "\n");
 
     int array_ind = 0;
+
     while (lexis != nullptr)
     {
-        lexis_array[array_ind] = lexis;
+        memcpy(lexis_store + (array_ind << 5), lexis, size_t_min(31, strlen(lexis)));
+
+        lexis_array[array_ind] = lexis_store + (array_ind << 5);
         lexis = strtok(nullptr, "\n");
 
-        array_ind ++;
+        array_ind++;
     }
     lexis_array[array_ind] = nullptr;
 
