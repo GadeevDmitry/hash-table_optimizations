@@ -25,20 +25,18 @@
 // SETTINGS
 //--------------------------------------------------------------------------------------------------------------------------------
 
-extern "C" hash_val crc32_asm(hash_key elem);
-
 const size_t HASH_TABLE_SIZE = 1907;
 const char  *HASH_TABLE_TEXT = "data/dictionary.txt";
 
-int        (*HASH_TABLE_CMP ) (hash_key fst, hash_key sec) = strcmp;
-hash_val   (*HASH_TABLE_CALC) (hash_key elem)              = crc32_asm;
-
-const int RUN_SEARCH_NUM      = 7000;
+const int RUN_SEARCH_NUM      = 15000;
 const int MAX_DICTIONARY_SIZE = 60000;
 
 //--------------------------------------------------------------------------------------------------------------------------------
 // FUNCTION DECLARATION
 //--------------------------------------------------------------------------------------------------------------------------------
+
+extern "C" hash_val crc32_asm(hash_key elem);
+static int         strcmp_asm(hash_key fst, hash_key sec);
 
 void run_search();
 
@@ -119,7 +117,7 @@ static hash_table *hash_table_init(hash_key *lexis_array)
 {
     log_verify(lexis_array != nullptr, nullptr);
 
-    hash_table *store = hash_table_new(HASH_TABLE_SIZE, HASH_TABLE_CALC, HASH_TABLE_CMP);
+    hash_table *store = hash_table_new(HASH_TABLE_SIZE, crc32_asm, strcmp_asm);
     log_verify(store != nullptr, nullptr);
 
     for (int i = 0; lexis_array[i] != nullptr; ++i)
@@ -150,4 +148,31 @@ static hash_key *lexis_array_init(buffer *const dictionary)
     lexis_array[array_ind] = nullptr;
 
     return lexis_array;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------
+// strcmp_asm
+//--------------------------------------------------------------------------------------------------------------------------------
+
+static int strcmp_asm(hash_key fst, hash_key sec)
+{
+    int result = 0;
+
+    asm(
+    ".intel_syntax noprefix\n"
+
+    "vmovdqu ymm0, ymmword ptr [%1]         /* ymm0 <- fst       */\n"
+    "vmovdqu ymm1, ymmword ptr [%2]         /* ymm1 <- sec       */\n"
+
+    "vptest  ymm0, ymm1                     /* cf = (fst == sec) */\n"
+    "setnc  %b0\n"
+
+    ".att_syntax prefix\n"
+
+    : "=r"(result)
+    : "r"(fst), "r"(sec)
+    : "ymm0", "ymm1", "cc"
+    );
+
+    return result;
 }
