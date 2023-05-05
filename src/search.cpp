@@ -165,7 +165,7 @@ static int strcmp_asm(hash_key fst, hash_key sec)
     "vmovdqu ymm1, ymmword ptr [%2]         /* ymm1 <- sec       */\n"
 
     "vptest  ymm0, ymm1                     /* cf = (fst == sec) */\n"
-    "setnc  %b0\n"
+    "seta  %b0\n"
 
     ".att_syntax prefix\n"
 
