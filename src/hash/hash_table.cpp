@@ -16,8 +16,8 @@ static bool hash_list_find(const hash_table *const h_tab, const size_t index, ha
 
 #define $h_data (h_tab->data)
 #define $h_size (h_tab->size)
-#define $h_calc (h_tab->calc)
-#define $h_cmp  (h_tab->cmp )
+#define $h_calc (h_tab->hash_calc)
+#define $h_cmp  (h_tab->key_cmp )
 
 //--------------------------------------------------------------------------------------------------------------------------------
 // ctor, dtor

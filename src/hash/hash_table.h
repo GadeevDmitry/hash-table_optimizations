@@ -13,8 +13,8 @@ struct hash_table
     list   *data;
     size_t  size;
 
-    hash_val (*calc)(hash_key elem);
-    int      (*cmp )(hash_key first, hash_key second);
+    hash_val (*hash_calc)(hash_key elem);
+    int      (*key_cmp  )(hash_key first, hash_key second);
 };
 
 //--------------------------------------------------------------------------------------------------------------------------------
