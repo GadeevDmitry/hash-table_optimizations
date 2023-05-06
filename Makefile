@@ -56,7 +56,7 @@ LIB_H   = $(LOG_H)          $(ALG_H) $(STK_H) $(LST_H) $(CACHE_LST_H)
 
 lib: $(LIB_O)
 
-clean:
+clean_lib:
 	rm -f $(CACHE_LST_O)
 	rm -f $(LOG_O)
 	rm -f $(ALG_O)
@@ -93,6 +93,9 @@ HASH_TYPE_O    = $(OBJ)/type.o
 
 HASH_TIME_CPP  = $(HASH_DIR)/hash_time.cpp
 HASH_TIME      = hash_time
+
+clean_hash:
+	rm -r $(OBJ)
 
 #----------------------------------------------------------------------------------
 
