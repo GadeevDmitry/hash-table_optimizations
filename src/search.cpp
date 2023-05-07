@@ -33,7 +33,7 @@ const char  *HASH_TABLE_TEXT = "data/dictionary.txt";
 int        (*HASH_TABLE_KEY_CMP  ) (hash_key fst, hash_key sec) = strcmp;
 hash_val   (*HASH_TABLE_HASH_CALC) (hash_key elem)              = crc32_asm;
 
-const int RUN_SEARCH_NUM      = 7000;
+const int RUN_SEARCH_NUM      = 15000;
 const int MAX_DICTIONARY_SIZE = 60000;
 
 //--------------------------------------------------------------------------------------------------------------------------------

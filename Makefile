@@ -56,7 +56,7 @@ LIB_H = $(LOG_H)          $(ALG_H) $(STK_H) $(LST_H) $(CHAIN_H)
 
 lib: $(LIB_O)
 
-clean:
+clean_lib:
 	rm -f $(CHAIN_O)
 	rm -f $(LOG_O)
 	rm -f $(ALG_O)
@@ -92,6 +92,8 @@ HASH_TYPE_CPP  = $(HASH_DIR)/type.cpp
 HASH_TYPE_H    = $(HASH_DIR)/type.h
 HASH_TYPE_O    = $(OBJ)/type.o
 
+clean_hash:
+	rm -r $(OBJ)
 
 #----------------------------------------------------------------------------------
 
@@ -118,6 +120,7 @@ CRC32_LST = $(ASM_DIR)/crc32.lst
 CRC32_O   = $(OBJ)/crc32.o
 
 $(CRC32_O): $(CRC32_S)
+	mkdir -p $(OBJ)
 	nasm -f elf64 $< -l $(CRC32_LST) -o $(CRC32_O)
 
 #----------------------------------------------------------------------------------
