@@ -28,7 +28,7 @@
 const size_t HASH_TABLE_SIZE = 1907;
 const char  *HASH_TABLE_TEXT = "data/dictionary.txt";
 
-const int RUN_SEARCH_NUM      = 15000;
+const int RUN_SEARCH_NUM      = 30000;
 const int MAX_DICTIONARY_SIZE = 60000;
 
 //--------------------------------------------------------------------------------------------------------------------------------
