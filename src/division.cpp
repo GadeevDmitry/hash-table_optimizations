@@ -27,11 +27,11 @@ const char  *HASH_TABLE_CSV  = "data/division.csv";
 // FUNCTION DECLARATION
 //--------------------------------------------------------------------------------------------------------------------------------
 
-void csv_hash (FILE *const csv_stream, hash_val (*h_culc)(hash_key elem), const char *const h_name);
+void csv_hash (FILE *const csv_stream, hash_val (*h_calc)(hash_key elem), const char *const h_name);
 void csv_index(FILE *const csv_stream);
 
-static void        division_convert(const buffer *const dictionary, hash_val (*h_culc)(hash_key elem), FILE *const csv_stream);
-static hash_table *dictionary_parse(const buffer *const dictionary, hash_val (*h_culc)(hash_key elem));
+static void hash_func_distribution_convert(const buffer *const dictionary, hash_val (*h_calc)(hash_key elem), FILE *const csv_stream);
+static hash_table *hash_table_init        (const buffer *const dictionary, hash_val (*h_calc)(hash_key elem));
 
 //================================================================================================================================
 // MAIN
@@ -41,13 +41,13 @@ int main()
 {
     FILE   *csv_stream = fopen(HASH_TABLE_CSV, "w");
 
-    csv_hash(csv_stream, hash_trivial   , "trivial");
-    csv_hash(csv_stream, hash_first_char, "first char");
-    csv_hash(csv_stream, hash_len       , "length");
-    csv_hash(csv_stream, hash_sum_char  , "sum char");
-    csv_hash(csv_stream, hash_rol       , "ROL");
-    csv_hash(csv_stream, hash_ror       , "ROR");
-    csv_hash(csv_stream, hash_crc32     , "CRC32");
+    csv_hash(csv_stream, hash_trivial   , "trivial"     );
+    csv_hash(csv_stream, hash_first_char, "first char"  );
+    csv_hash(csv_stream, hash_len       , "length"      );
+    csv_hash(csv_stream, hash_sum_char  , "sum char"    );
+    csv_hash(csv_stream, hash_rol       , "ROL"         );
+    csv_hash(csv_stream, hash_ror       , "ROR"         );
+    csv_hash(csv_stream, hash_crc32     , "CRC32"       );
 
     csv_index(csv_stream);
     fclose   (csv_stream);
@@ -67,28 +67,29 @@ void csv_index(FILE *const csv_stream)
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-void csv_hash(FILE *const csv_stream, hash_val (*h_culc)(hash_key elem), const char *const h_name)
+void csv_hash(FILE *const csv_stream, hash_val (*h_calc)(hash_key elem), const char *const h_name)
 {
     log_verify(csv_stream != nullptr, (void) 0);
-    log_verify(h_culc     != nullptr, (void) 0);
+    log_verify(h_calc     != nullptr, (void) 0);
     log_verify(h_name     != nullptr, (void) 0);
 
     buffer *dictionary = buffer_new(HASH_TABLE_TEXT);
 
-    fprintf(csv_stream, "%-20s" CSV_SEP " ", h_name); division_convert(dictionary, h_culc, csv_stream);
+    fprintf(csv_stream, "%-20s" CSV_SEP " ", h_name);
+    hash_func_distribution_convert(dictionary, h_calc, csv_stream);
 
     buffer_free(dictionary);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-static void division_convert(const buffer *const dictionary, hash_val (*h_culc)(hash_key elem), FILE *const csv_stream)
+static void hash_func_distribution_convert(const buffer *const dictionary, hash_val (*h_calc)(hash_key elem), FILE *const csv_stream)
 {
     log_verify(dictionary != nullptr, (void) 0);
-    log_verify(h_culc     != nullptr, (void) 0);
+    log_verify(h_calc     != nullptr, (void) 0);
     log_verify(csv_stream != nullptr, (void) 0);
 
-    hash_table *store = dictionary_parse(dictionary, h_culc);
+    hash_table *store = hash_table_init(dictionary, h_calc);
     log_verify(store != nullptr, (void) 0);
 
     size_t h_size = store->size;
@@ -100,17 +101,17 @@ static void division_convert(const buffer *const dictionary, hash_val (*h_culc)(
     }
     putc('\n', csv_stream);
 
-    hash_table_free(store);
+    hash_table_delete(store);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-static hash_table *dictionary_parse(const buffer *const dictionary, hash_val (*h_culc)(hash_key elem))
+static hash_table *hash_table_init(const buffer *const dictionary, hash_val (*h_calc)(hash_key elem))
 {
     log_assert(dictionary != nullptr);
-    log_assert(h_culc     != nullptr);
+    log_assert(h_calc     != nullptr);
 
-    hash_table *store = hash_table_new(HASH_TABLE_SIZE, h_culc, strcmp);
+    hash_table *store = hash_table_new(HASH_TABLE_SIZE, h_calc, strcmp);
     log_verify(store != nullptr, nullptr);
 
     hash_key lexis = strtok(dictionary->buff_beg, "\n");

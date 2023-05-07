@@ -82,7 +82,7 @@ void hash_table_dtor(hash_table *const h_tab)
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-void hash_table_free(hash_table *const h_tab)
+void hash_table_delete(hash_table *const h_tab)
 {
     hash_table_dtor(h_tab);
     log_free       (h_tab);
