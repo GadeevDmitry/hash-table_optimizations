@@ -118,7 +118,7 @@ static hash_table *hash_table_init(const buffer *const dictionary, hash_val (*h_
     while (lexis != nullptr)
     {
         hash_table_push_forced(store, lexis); // работает корректно, если буфер состоит из уникальных слов, иначе статистика заполнения будет неверная,
-        lexis = strtok(nullptr, "\n");        // т.к. функция hash_table_push_forced не проверяет на наличие копий в списке!
+        lexis = strtok(nullptr, "\n");        // так как функция hash_table_push_forced() не проверяет на наличие копий в списке!
     }
 
     return store;
