@@ -276,13 +276,36 @@ bool chain_find(const chain *const lst, const char *const key, int (*key_cmp)(co
 
     while (dup_node != dup_fict)
     {
-        if (key_cmp((dup_node->keys     ), key) == 0) return true;
-        if (key_cmp((dup_node->keys + 32), key) == 0) return true;
+        if (strcmp_asm((dup_node->keys     ), key) == 0) return true;
+        if (strcmp_asm((dup_node->keys + 32), key) == 0) return true;
 
         dup_node = dup_fict + dup_node->next;
     }
 
     return false;
+}
+
+static int strcmp_asm(const char *fst, const char *sec)
+{
+    int result = 0;
+
+    asm(
+    ".intel_syntax noprefix\n"
+
+    "vmovdqu ymm0, ymmword ptr [%1]         /* ymm0 <- fst       */\n"
+    "vmovdqu ymm1, ymmword ptr [%2]         /* ymm1 <- sec       */\n"
+
+    "vptest  ymm0, ymm1                     /* cf = (fst == sec) */\n"
+    "seta  %b0\n"
+
+    ".att_syntax prefix\n"
+
+    : "=r"(result)
+    : "r"(fst), "r"(sec)
+    : "ymm0", "ymm1", "cc"
+    );
+
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
