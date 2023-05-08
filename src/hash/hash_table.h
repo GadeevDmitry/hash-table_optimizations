@@ -28,15 +28,16 @@ bool hash_table_ctor(hash_table *const h_tab, const size_t h_size, hash_val (*h_
                                                                    int      (*h_cmp )(hash_key fst, hash_key sec));
 hash_table *hash_table_new(                   const size_t h_size, hash_val (*h_calc)(hash_key elem),
                                                                    int      (*h_cmp )(hash_key fst, hash_key sec));
-void hash_table_dtor(hash_table *const h_tab);
-void hash_table_free(hash_table *const h_tab);
+void hash_table_dtor  (hash_table *const h_tab);
+void hash_table_delete(hash_table *const h_tab);
 
 //--------------------------------------------------------------------------------------------------------------------------------
 // query
 //--------------------------------------------------------------------------------------------------------------------------------
 
-bool hash_table_push       (      hash_table *const h_tab, hash_key elem);
-bool hash_table_push_forced(      hash_table *const h_tab, hash_key elem);
-bool hash_table_find       (const hash_table *const h_tab, hash_key elem);
+buffer *hash_table_rebuild    (      hash_table *const h_tab, const size_t dictionary_size);
+bool    hash_table_push       (      hash_table *const h_tab, hash_key elem);
+bool    hash_table_push_forced(      hash_table *const h_tab, hash_key elem);
+bool    hash_table_find       (const hash_table *const h_tab, hash_key elem);
 
 #endif //HASH_TABLE_H

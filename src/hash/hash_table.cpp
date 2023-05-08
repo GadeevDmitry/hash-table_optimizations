@@ -82,7 +82,7 @@ void hash_table_dtor(hash_table *const h_tab)
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-void hash_table_free(hash_table *const h_tab)
+void hash_table_delete(hash_table *const h_tab)
 {
     hash_table_dtor(h_tab);
     log_free       (h_tab);
@@ -90,6 +90,36 @@ void hash_table_free(hash_table *const h_tab)
 
 //--------------------------------------------------------------------------------------------------------------------------------
 // query
+//--------------------------------------------------------------------------------------------------------------------------------
+
+buffer *hash_table_rebuild(hash_table *const h_tab, const size_t dictionary_size)
+{
+    log_verify(h_tab       != nullptr, nullptr);
+    log_verify(lexis_array != nullptr, nullptr);
+
+    buffer *new_dictionary = buffer_new(dictionary_size);
+    log_verify(new_dictionary != nullptr, nullptr);
+
+    size_t table_size = h_tab->size;
+
+    for (size_t chain = 0; chain < table_size; ++chain)
+    {
+        list_node *coll_fict = h_tab->data[chain].fictional;
+        list_node *coll_node = coll_fict + coll_fict->next;
+
+        while (coll_node != coll_fict)
+        {
+            void *cur_buff_pos = new_dictionary->buff_pos;
+            buffer_write(new_dictionary, coll_node->data, strlen((const char *) coll_node->data) + 1);
+
+            coll_node->data = cur_buff_pos;
+            coll_node       = coll_fict + coll_node->next;
+        }
+    }
+
+    return new_dictionary;
+}
+
 //--------------------------------------------------------------------------------------------------------------------------------
 
 bool hash_table_push(hash_table *const h_tab, hash_key elem)
