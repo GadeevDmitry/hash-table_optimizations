@@ -40,7 +40,7 @@ static int         strcmp_asm(hash_key fst, hash_key sec);
 
 void run_search();
 
-static double               run_search       (const hash_table *const store, hash_key *lexis_array);
+static double               search_test      (const hash_table *const store, hash_key *lexis_array);
 static __always_inline void hash_table_search(const hash_table *const store, hash_key *lexis_array);
 static hash_table          *hash_table_init   (                              hash_key *lexis_array);
 
@@ -63,10 +63,10 @@ void run_search()
     hash_key *lexis_array = lexis_array_init(dictionary);
     hash_table *store     = hash_table_init(lexis_array);
 
-    fprintf(stderr, "search time: %lf ms\n", run_search(store, lexis_array));
+    fprintf(stderr, "search time: %lf ms\n", search_test(store, lexis_array));
 
     buffer_free(dictionary);
-    hash_table_free (store);
+    hash_table_delete(store);
 
     log_free((void *) *lexis_array);
     log_free(          lexis_array);
@@ -74,7 +74,7 @@ void run_search()
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-static double run_search(const hash_table *const store, hash_key *lexis_array)
+static double search_test(const hash_table *const store, hash_key *lexis_array)
 {
     log_verify(store       != nullptr, NAN);
     log_verify(lexis_array != nullptr, NAN);

@@ -12,8 +12,6 @@
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-static bool hash_list_find(const hash_table *const h_tab, const size_t index, hash_key elem);
-
 #define $h_data (h_tab->data)
 #define $h_size (h_tab->size)
 #define $h_calc (h_tab->hash_calc)
@@ -82,7 +80,7 @@ void hash_table_dtor(hash_table *const h_tab)
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-void hash_table_free(hash_table *const h_tab)
+void hash_table_delete(hash_table *const h_tab)
 {
     hash_table_dtor(h_tab);
     log_free       (h_tab);
@@ -99,7 +97,7 @@ bool hash_table_push(hash_table *const h_tab, hash_key key)
 
     hash_val index = ($h_calc(key)) % $h_size;
 
-    if (hash_list_find(h_tab, index, key)) return true;
+    if (chain_find($h_data + index, key, $h_cmp)) return true;
 
     return chain_push_front($h_data + index, key);
 }
@@ -125,7 +123,7 @@ bool hash_table_find(const hash_table *const h_tab, hash_key key)
 
     hash_val index = ($h_calc(key)) % $h_size;
 
-    return hash_list_find(h_tab, index, key);
+    return chain_find($h_data + index, key, $h_cmp);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
@@ -135,30 +133,6 @@ size_t hash_table_chain_size(const hash_table *const h_tab, size_t ind)
     log_verify(h_tab != nullptr, 0);
 
     return chain_get_size($h_data + ind);
-}
-
-//--------------------------------------------------------------------------------------------------------------------------------
-
-static bool hash_list_find(const hash_table *const h_tab, const size_t index, hash_key key)
-{
-    log_verify(h_tab != nullptr, false);
-    log_verify(index <  $h_size, false);
-    log_verify(key   != nullptr, false);
-
-    int (*h_cmp)(hash_key fst, hash_key sec) = $h_cmp;
-
-    chain_node *dup_fict = $h_data[index].fictional;
-    chain_node *dup_node = dup_fict + dup_fict->next;
-
-    while (dup_node != dup_fict)
-    {
-        if (h_cmp((hash_key)(dup_node->keys     ), key) == 0) return true;
-        if (h_cmp((hash_key)(dup_node->keys + 32), key) == 0) return true;
-
-        dup_node = dup_fict + dup_node->next;
-    }
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
