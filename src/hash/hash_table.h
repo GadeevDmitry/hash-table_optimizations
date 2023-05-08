@@ -25,8 +25,8 @@ bool hash_table_ctor(hash_table *const h_tab, const size_t h_size, hash_val (*h_
                                                                    int      (*h_cmp )(hash_key fst, hash_key sec));
 hash_table *hash_table_new(                   const size_t h_size, hash_val (*h_calc)(hash_key elem),
                                                                    int      (*h_cmp )(hash_key fst, hash_key sec));
-void hash_table_dtor(hash_table *const h_tab);
-void hash_table_free(hash_table *const h_tab);
+void hash_table_dtor  (hash_table *const h_tab);
+void hash_table_delete(hash_table *const h_tab);
 
 //--------------------------------------------------------------------------------------------------------------------------------
 // query
