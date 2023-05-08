@@ -88,7 +88,8 @@ static double search_test(const hash_table *const store, hash_key *lexis_array)
 
     for (int i = 0; i < RUN_SEARCH_NUM; ++i)
     {
-        hash_table_search(store, lexis_array);
+        hash_table_search(store, lexis_array);  // работает корректно, если буфер состоит из уникальных слов, иначе статистика заполнения будет неверная,
+                                                // так как функция hash_table_push_forced() не проверяет на наличие копий в списке!
     }
 
     #ifdef CALLGRIND_MODE
