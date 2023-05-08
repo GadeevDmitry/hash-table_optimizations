@@ -222,7 +222,7 @@ $o
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-void chain_free(void *const _lst)
+void chain_delete(void *const _lst)
 {
 $i
 $   chain_dtor(_lst);
@@ -261,6 +261,28 @@ $i
 
     if ($fictional[$fictional->next].keys[32] == '\0') { $o return 2 * $size - 1; }
 $o  return 2 * $size;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+bool chain_find(const chain *const lst, const char *const key, int (*key_cmp)(const char *, const char *))
+{
+    log_verify(lst     != nullptr, false);
+    log_verify(key     != nullptr, false);
+    log_verify(key_cmp != nullptr, false);
+
+    chain_node *dup_fict = lst->fictional;
+    chain_node *dup_node = dup_fict + dup_fict->next;
+
+    while (dup_node != dup_fict)
+    {
+        if (key_cmp((dup_node->keys     ), key) == 0) return true;
+        if (key_cmp((dup_node->keys + 32), key) == 0) return true;
+
+        dup_node = dup_fict + dup_node->next;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
