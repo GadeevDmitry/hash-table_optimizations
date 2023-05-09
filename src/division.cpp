@@ -17,7 +17,7 @@
 // SETTINGS
 //--------------------------------------------------------------------------------------------------------------------------------
 
-const size_t HASH_TABLE_SIZE = 1907;
+const size_t HASH_TABLE_SIZE = 5701;
 const char  *HASH_TABLE_TEXT = "data/dictionary.txt";
 const char  *HASH_TABLE_CSV  = "data/division.csv";
 
