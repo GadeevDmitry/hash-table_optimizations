@@ -44,11 +44,11 @@ static bool chain_fictional_ctor(chain *const lst)
 $i
     log_assert(lst != nullptr);
 
-$   $fictional = (chain_node *) aligned_alloc(64, DEFAULT_CHAIN_CAPACITY * sizeof(chain_node));
+$   $fictional = (chain_node *) log_calloc(DEFAULT_CHAIN_CAPACITY, sizeof(chain_node));
     if ($fictional == nullptr)
     {
-$       log_error("aligned_alloc(64, DEFAULT_CHAIN_CAPACITY = %lu * sizeof(chain_node) = %lu) returns nullptr\n",
-                                     DEFAULT_CHAIN_CAPACITY       , sizeof(chain_node));
+$       log_error("log_calloc(DEFAULT_CHAIN_CAPACITY = %lu, sizeof(chain_node) = %lu) returns nullptr\n",
+                              DEFAULT_CHAIN_CAPACITY      , sizeof(chain_node));
 $o      return false;
     }
 
