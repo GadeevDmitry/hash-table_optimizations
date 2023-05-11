@@ -28,7 +28,7 @@
 const size_t HASH_TABLE_SIZE = 1907;
 const char  *HASH_TABLE_TEXT = "data/dictionary.txt";
 
-const int RUN_SEARCH_NUM      = 10000;
+const int RUN_SEARCH_NUM      = 15000;
 const int MAX_DICTIONARY_SIZE = 60000;
 
 //--------------------------------------------------------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ void run_search()
     buffer_free(dictionary);
     hash_table_delete(store);
 
-    log_free((void *) *lexis_array);
+        free((void *) *lexis_array);
     log_free(          lexis_array);
 }
 
@@ -106,8 +106,7 @@ static __always_inline void hash_table_search(const hash_table *const store, has
 
     for (int i = 0; lexis_array[i] != nullptr; ++i)
     {
-        hash_table_find(store, lexis_array[i]); // работает корректно, если буфер состоит из уникальных слов, иначе статистика заполнения будет неверная,
-                                                // так как функция hash_table_push_forced() не проверяет на наличие копий в списке!
+        hash_table_find(store, lexis_array[i]);
     }
 }
 
@@ -122,7 +121,8 @@ static hash_table *hash_table_init(hash_key *lexis_array)
 
     for (int i = 0; lexis_array[i] != nullptr; ++i)
     {
-        hash_table_push_forced(store, lexis_array[i]);
+        hash_table_push_forced(store, lexis_array[i]);  // работает корректно, если буфер состоит из уникальных слов, иначе статистика заполнения будет неверная,
+                                                        // так как функция hash_table_push_forced() не проверяет на наличие копий в списке!
     }
 
     return store;
@@ -134,8 +134,8 @@ static hash_key *lexis_array_init(buffer *const dictionary)
 {
     log_verify(dictionary != nullptr, nullptr);
 
-    hash_key *lexis_array = (hash_key *) log_calloc(MAX_DICTIONARY_SIZE, sizeof(char *));
-    char     *lexis_store = (char     *) log_calloc(MAX_DICTIONARY_SIZE, 32);
+    hash_key *lexis_array = (hash_key *) log_calloc   (    MAX_DICTIONARY_SIZE, sizeof(char *));
+    char     *lexis_store = (char     *) aligned_alloc(32, MAX_DICTIONARY_SIZE * 32);
     hash_key  lexis = strtok(dictionary->buff_beg, "\n");
 
     int array_ind = 0;

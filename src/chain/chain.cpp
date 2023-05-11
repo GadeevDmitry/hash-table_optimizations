@@ -44,11 +44,11 @@ static bool chain_fictional_ctor(chain *const lst)
 $i
     log_assert(lst != nullptr);
 
-$   $fictional = (chain_node *) log_calloc(DEFAULT_CHAIN_CAPACITY, sizeof(chain_node));
+$   $fictional = (chain_node *) aligned_alloc(64, DEFAULT_CHAIN_CAPACITY * sizeof(chain_node));
     if ($fictional == nullptr)
     {
-$       log_error("log_calloc(DEFAULT_CHAIN_CAPACITY = %lu, sizeof(chain_node) = %lu) returns nullptr\n",
-                              DEFAULT_CHAIN_CAPACITY      , sizeof(chain_node));
+$       log_error("aligned_alloc(64, DEFAULT_CHAIN_CAPACITY = %lu * sizeof(chain_node) = %lu) returns nullptr\n",
+                                     DEFAULT_CHAIN_CAPACITY       * sizeof(chain_node));
 $o      return false;
     }
 
@@ -187,14 +187,16 @@ $i
     log_assert($size + 1 == $capacity);
 
     size_t      capacity_new = 2 * $capacity;
-$   chain_node *fictional_new = (chain_node *) log_realloc($fictional, capacity_new * sizeof(chain_node));
-
+$   chain_node *fictional_new = (chain_node *) aligned_alloc(64, capacity_new * sizeof(chain_node));
     if (fictional_new == nullptr)
     {
-$       log_error("log_realloc($fictional, (capacity_new * sizeof(chain_node)) = %lu) returns nullptr\n",
-                                            capacity_new * sizeof(chain_node));
+$       log_error("aligned_alloc(64, capacity_new * sizeof(chain_node)) = %lu) returns nullptr\n",
+                                     capacity_new * sizeof(chain_node));
 $o      return false;
     }
+
+    memcpy(fictional_new, $fictional, sizeof(chain_node) * $capacity);
+    free ($fictional);
 
     $fictional = fictional_new;
     $capacity *=         2;
@@ -276,8 +278,20 @@ bool chain_find(const chain *const lst, const char *const key, int (*key_cmp)(co
 
     while (dup_node != dup_fict)
     {
-        if (strcmp_asm((dup_node->keys     ), key) == 0) return true;
-        if (strcmp_asm((dup_node->keys + 32), key) == 0) return true;
+        if (strcmp_asm((dup_node->keys), key) == 0)
+        {
+            #ifdef FIND_DEBUG
+            log_message("[00; 32): %s", dup_node->keys);
+            #endif
+            return true;
+        }
+        if (strcmp_asm((dup_node->keys + 32), key) == 0)
+        {
+            #ifdef FIND_DEBUG
+            log_message("[32; 64): %s", dup_node->keys + 32);
+            #endif
+            return true;
+        }
 
         dup_node = dup_fict + dup_node->next;
     }
@@ -292,11 +306,12 @@ static int strcmp_asm(const char *fst, const char *sec)
     asm(
     ".intel_syntax noprefix\n"
 
-    "vmovdqu ymm0, ymmword ptr [%1]         /* ymm0 <- fst       */\n"
-    "vmovdqu ymm1, ymmword ptr [%2]         /* ymm1 <- sec       */\n"
+    "vmovdqa ymm0, ymmword ptr [%1]         /* ymm0 <- fst       */\n"
+    "vmovdqa ymm1, ymmword ptr [%2]         /* ymm1 <- sec       */\n"
 
     "vptest  ymm0, ymm1                     /* cf = (fst == sec) */\n"
-    "seta  %b0\n"
+    "mov %0, 0\n"
+    "setnc %b0\n"
 
     ".att_syntax prefix\n"
 

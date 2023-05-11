@@ -1,6 +1,7 @@
 /** @file */
 #ifndef CACHE_chain_STATIC_H
 #define CACHE_chain_STATIC_H
+//#define FIND_DEBUG
 
 #include <stdio.h>
 #include <stdlib.h>
