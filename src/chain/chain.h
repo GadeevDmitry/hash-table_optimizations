@@ -9,9 +9,9 @@
 // STRUCT
 //================================================================================================================================
 
-struct chain_node
+struct __attribute__ ((aligned (64))) chain_node
 {
-    char keys[64];
+    char keys[64];  // 2 ключа в одной вершине
 
     size_t prev;
     size_t next;
