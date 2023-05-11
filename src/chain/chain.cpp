@@ -44,11 +44,11 @@ static bool chain_fictional_ctor(chain *const lst)
 $i
     log_assert(lst != nullptr);
 
-$   $fictional = (chain_node *) log_calloc(DEFAULT_CHAIN_CAPACITY, sizeof(chain_node));
+$   $fictional = (chain_node *) aligned_alloc(64, DEFAULT_CHAIN_CAPACITY * sizeof(chain_node));
     if ($fictional == nullptr)
     {
-$       log_error("log_calloc(DEFAULT_CHAIN_CAPACITY = %lu, sizeof(chain_node) = %lu) returns nullptr\n",
-                              DEFAULT_CHAIN_CAPACITY      , sizeof(chain_node));
+$       log_error("aligned_alloc(64, DEFAULT_CHAIN_CAPACITY = %lu * sizeof(chain_node) = %lu) returns nullptr\n",
+                                     DEFAULT_CHAIN_CAPACITY       * sizeof(chain_node));
 $o      return false;
     }
 
@@ -276,8 +276,20 @@ $i
 
     while (dup_node != dup_fict)
     {
-$       if (key_cmp((dup_node->keys     ), key) == 0) return true;
-$       if (key_cmp((dup_node->keys + 32), key) == 0) return true;
+$       if (key_cmp((dup_node->keys     ), key) == 0)
+        {
+            #ifdef FIND_DEBUG
+            log_message("[00; 32): %s", dup_node->keys);
+            #endif
+            return true;
+        }
+$       if (key_cmp((dup_node->keys + 32), key) == 0)
+        {
+            #ifdef FIND_DEBUG
+            log_message("[32; 64): %s", dup_node->keys + 32);
+            #endif
+            return true;
+        }
 
         dup_node = dup_fict + dup_node->next;
     }
