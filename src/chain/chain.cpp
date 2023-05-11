@@ -271,11 +271,12 @@ $i
     log_verify(lst != nullptr, false);
     log_verify(key != nullptr, false);
 
-    chain_node *dup_fict = lst->fictional;
-    chain_node *dup_node = dup_fict + dup_fict->next;
+    chain_node *dup_node = lst->fictional;
 
-    while (dup_node != dup_fict)
+    for (size_t index = 0; index < $size; ++index)
     {
+        ++dup_node;
+
 $       if (key_cmp((dup_node->keys     ), key) == 0)
         {
             #ifdef FIND_DEBUG
@@ -290,8 +291,6 @@ $       if (key_cmp((dup_node->keys + 32), key) == 0)
             #endif
             return true;
         }
-
-        dup_node = dup_fict + dup_node->next;
     }
 
 $o  return false;
