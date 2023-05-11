@@ -39,7 +39,7 @@ static bool chain_try_push_key  (chain *const lst, const char *const key, const 
 
 static bool chain_resize(chain *const lst);
 
-static int strcmp_asm(const char *fst, const char *sec) __attribute__((noinline));
+static __always_inline int strcmp_asm(const char *fst, const char *sec);
 
 static void                 chain_static_dump           (const chain *const lst);
 static __always_inline bool chain_header_dump           (const chain *const lst);

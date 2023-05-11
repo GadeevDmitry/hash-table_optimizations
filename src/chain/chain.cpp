@@ -299,7 +299,7 @@ bool chain_find(const chain *const lst, const char *const key, int (*key_cmp)(co
     return false;
 }
 
-static int strcmp_asm(const char *fst, const char *sec)
+static __always_inline int strcmp_asm(const char *fst, const char *sec)
 {
     int result = 0;
 
