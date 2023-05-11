@@ -8,7 +8,7 @@
 #define NVERIFY
 #define LOG_NTRACE
 #define LOG_NLEAK
-#define CALLGRIND_MODE
+//#define CALLGRIND_MODE
 
 #include "../lib/algorithm/algorithm.h"
 #include "../lib/logs/log.h"
