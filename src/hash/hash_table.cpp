@@ -153,5 +153,5 @@ bool hash_table_find(const hash_table *const h_tab, hash_key elem)
 
     hash_val index = ($h_calc(elem)) % $h_size;
 
-    return cache_list_find($h_data + index, elem, (int (*) (const void *, const void *))$h_cmp);
+    return cache_list_find_through($h_data + index, elem, (int (*) (const void *, const void *))$h_cmp);
 }
