@@ -12,8 +12,6 @@
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-static bool hash_list_find(const hash_table *const h_tab, const size_t index, hash_key elem);
-
 #define $h_data (h_tab->data)
 #define $h_size (h_tab->size)
 #define $h_calc (h_tab->hash_calc)
@@ -129,7 +127,7 @@ bool hash_table_push(hash_table *const h_tab, hash_key elem)
 
     hash_val index = ($h_calc(elem)) % $h_size;
 
-    if (hash_list_find(h_tab, index, elem)) return true;
+    if (cache_list_find($h_data + index, elem, (int (*) (const void *, const void *)) $h_cmp)) return true;
 
     return cache_list_push_front($h_data + index, elem);
 }
@@ -155,26 +153,5 @@ bool hash_table_find(const hash_table *const h_tab, hash_key elem)
 
     hash_val index = ($h_calc(elem)) % $h_size;
 
-    return hash_list_find(h_tab, index, elem);
-}
-
-//--------------------------------------------------------------------------------------------------------------------------------
-
-static bool hash_list_find(const hash_table *const h_tab, const size_t index, hash_key elem)
-{
-    log_verify(h_tab != nullptr, false);
-    log_verify(index <  $h_size, false);
-
-    int (*h_cmp)(hash_key fst, hash_key sec) = $h_cmp;
-
-    list_node *dup_fict = $h_data[index].fictional;
-    list_node *dup_node = dup_fict + dup_fict->next;
-
-    while (dup_node != dup_fict)
-    {
-        if (h_cmp((hash_key)(dup_node->data), elem) == 0) return true;
-        dup_node = dup_fict + dup_node->next;
-    }
-
-    return false;
+    return cache_list_find($h_data + index, elem, (int (*) (const void *, const void *))$h_cmp);
 }
