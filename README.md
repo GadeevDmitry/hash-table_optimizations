@@ -25,28 +25,25 @@ typedef const char   *hash_key;
 typedef       char   *hash_t  ;
 ```
 ## Часть 1. Исследование хэш-функций
-Ниже будут представлены различные хэш-функции и их анализ. Измерения проводились при объеме базы в ~50000 слов и хэш-таблице емкостью 5701.
+Ниже будут представлены различные хэш-функции и их анализ. Измерения проводились при объеме базы в ~50000 слов и хэш-таблице емкостью 4001 (простое число).
 
 **TRIVIAL**
 
 $hash(\forall key) = 1$
 
-![trivial     ](data/trivial.png)
-![trivial_smal](data/trivial_small.png)
+![trivial](data/trivial.png)
 
 **FIRST CHAR**
 
 $hash(key) = key[0]$
 
-![first_char      ](data/first_char.png)
-![first_char_small](data/first_char_small.png)
+![first_char](data/first_char.png)
 
 **LENGTH**
 
 $hash(key) = strlen(key)$
 
-![length      ](data/length.png)
-![length_small](data/length_small.png)
+![length](data/length.png)
 
 **SUM CHAR**
 
